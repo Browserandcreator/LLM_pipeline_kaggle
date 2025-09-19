@@ -25,13 +25,12 @@ your-repo/
 
 ## 快速开始（本地）
 
-#### venv快速开始（轻量级，好上手，不易管理）：
+#### venv（轻量级，好上手，不易管理）：
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -U pip wheel
 pip install -r requirements.txt
-python src/train_llm.py --config configs/llm_kaggle_t4.yaml
 ```
 
 
@@ -48,7 +47,7 @@ pip install -r requirements.txt
 
 #### 环境检测：
 
-创建一个你想要的python环境后，激活这个环境，并且运行脚本：
+针对可能出现的环境问题：创建一个你想要的python环境后，激活这个环境，并且运行脚本：
 
 ```bash
 python check_env.py
@@ -84,6 +83,18 @@ Check complete.
 ```
 
 说明包都下载完成了。
+
+
+
+## 训练（本地）
+
+#### 参数配置
+
+#### 运行
+
+```python
+python src/train_llm.py --config configs/llm_base.yaml
+```
 
 
 

@@ -8,7 +8,7 @@ tokenizer:
 
 data:
   # 支持通配：/kaggle/input/your-dataset/**/*.txt
-  text_glob: "./data/**/*.txt"
+  text_glob: "./data/*.txt"
   train_val_split: 0.98
 
 model:
