@@ -1,0 +1,66 @@
+import argparse, torch
+from llm.model_gpt import TinyGPT
+from llm.tokenizer_simple import CharTokenizer, SimpleBPETokenizer
+import yaml, os, json
+
+def load_tokenizer(cfg):
+    mode = cfg['tokenizer']['mode']
+    if mode == "char":
+        tok = CharTokenizer()
+        # 这里直接fit一个简单语料，保证 stoi/itos 初始化
+        tok.fit("abcdefghijklmnopqrstuvwxyz .,!?;:'\"-\n")
+        return tok
+    elif mode == "bpe_simple":
+        tok = SimpleBPETokenizer(vocab_size=cfg['tokenizer'].get('vocab_size', 8000))
+        tok.train("abcdefghijklmnopqrstuvwxyz .,!?;:'\"-\n")
+        return tok
+    elif mode == "hf":
+        from transformers import AutoTokenizer
+        name = cfg['tokenizer'].get('pretrained_name', 'gpt2')
+        return AutoTokenizer.from_pretrained(name)
+    else:
+        raise ValueError(f"Unknown tokenizer mode: {mode}")
+
+def generate(model, tokenizer, prompt, max_new_tokens=50, device="cpu"):
+    model.eval()
+    ids = torch.tensor([tokenizer.encode(prompt)], dtype=torch.long).to(device)
+    for _ in range(max_new_tokens):
+        idx_cond = ids[:, -model.block_size:]
+        logits, _ = model(idx_cond)
+        next_id = torch.argmax(logits[:, -1, :], dim=-1, keepdim=True)
+        ids = torch.cat([ids, next_id], dim=1)
+    return tokenizer.decode(ids[0].tolist())
+
+def main(cfg_path, model_path, prompt, max_new_tokens):
+    with open(cfg_path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    tokenizer = load_tokenizer(cfg)
+    vocab_size = cfg["tokenizer"].get("vocab_size", max(tokenizer.stoi.values())+1)
+
+    model = TinyGPT(
+        vocab_size=vocab_size,
+        n_layer=cfg["model"]["n_layer"],
+        n_head=cfg["model"]["n_head"],
+        n_embd=cfg["model"]["n_embd"],
+        block_size=cfg["model"]["block_size"],
+        dropout=cfg["model"].get("dropout",0.1),
+    ).to(device)
+
+    state = torch.load(model_path, map_location=device)
+    model.load_state_dict(state)
+
+    out = generate(model, tokenizer, prompt, max_new_tokens, device=device)
+    print("="*50)
+    print(out)
+    print("="*50)
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--config", required=True, help="配置文件路径")
+    ap.add_argument("--model", required=True, help="训练好的权重文件路径")
+    ap.add_argument("--prompt", required=True, help="要续写的提示文本")
+    ap.add_argument("--max_new_tokens", type=int, default=50)
+    args = ap.parse_args()
+    main(args.config, args.model, args.prompt, args.max_new_tokens)

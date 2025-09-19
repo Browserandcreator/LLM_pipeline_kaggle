@@ -24,6 +24,9 @@ your-repo/
 ```
 
 ## 快速开始（本地）
+
+#### venv快速开始（轻量级，好上手，不易管理）：
+
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -U pip wheel
@@ -31,7 +34,61 @@ pip install -r requirements.txt
 python src/train_llm.py --config configs/llm_kaggle_t4.yaml
 ```
 
+
+
+#### conda（包较大，下载慢，好管理）：
+
+```bash
+conda create -n llm python=3.10
+conda activate llm
+pip install -r requirements.txt
+```
+
+
+
+#### 环境检测：
+
+创建一个你想要的python环境后，激活这个环境，并且运行脚本：
+
+```bash
+python check_env.py
+```
+
+脚本会检测环境中的包是否安装，如果输出为：
+
+```bash
+============================================================
+📦 Required packages and expected versions
+ - torch         (expected ~2.8)
+ - transformers  (expected ~4.56)
+ - datasets      (expected ~4.1)
+ - tqdm          (expected ~4.67)
+ - numpy         (expected ~2.3)
+ - pandas        (expected ~2.3)
+ - yaml          (expected ~6.0)
+ - tokenizers    (expected ~0.22)
+============================================================
+🔍 Checking Python environment...
+============================================================
+✅ torch        installed, version 2.8.0+cpu (expected ~2.8)
+✅ transformers installed, version 4.56.1 (expected ~4.56)
+✅ datasets     installed, version 4.1.1 (expected ~4.1)
+✅ tqdm         installed, version 4.67.1 (expected ~4.67)
+✅ numpy        installed, version 2.3.3 (expected ~2.3)
+✅ pandas       installed, version 2.3.2 (expected ~2.3)
+✅ yaml         installed, version 6.0.2 (expected ~6.0)
+✅ tokenizers   installed, version 0.22.1 (expected ~0.22)
+============================================================
+Check complete.
+如果有 ❌ ，请重新安装对应的包： pip install 包名==版本
+```
+
+说明包都下载完成了。
+
+
+
 ## 在 Kaggle Notebook 上运行
+
 1. 右侧 **Add-ons → Secrets** 新建 `GITHUB_TOKEN`；开启 GPU；在 Data 面板添加你的文本 Dataset（例如一个 .txt 或多个 .txt）。  
 2. 第一格：
 ```python
