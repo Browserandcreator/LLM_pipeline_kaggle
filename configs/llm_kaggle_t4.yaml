@@ -1,0 +1,31 @@
+# 更保守的 Kaggle T4 配置
+seed: 2025
+
+tokenizer:
+  mode: "char"
+  vocab_size: 4000
+
+data:
+  text_glob: "/kaggle/input/*/**/*.txt"
+  train_val_split: 0.99
+
+model:
+  block_size: 256
+  n_layer: 6
+  n_head: 8
+  n_embd: 384
+  dropout: 0.1
+  tie_weights: true
+
+train:
+  epochs: 1
+  batch_size: 16
+  lr: 3.0e-4
+  weight_decay: 0.1
+  warmup_steps: 500
+  grad_accum_steps: 8
+  max_steps: 1500
+  amp: true
+  compile: false
+  out_dir: "/kaggle/working/outputs"
+  min_lr: 1.0e-5
